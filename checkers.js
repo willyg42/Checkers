@@ -2,6 +2,7 @@ function Piece(color,xPos,yPos) {
   this.color = color
   this.xPos = xPos
   this.yPos = yPos
+  this.king = false
 }
 
 var board = [
@@ -65,8 +66,10 @@ function grabPiece(e) {
     if(heldPiece == null) {
       for(y=0; y<board.length; y++){
         for(x=0; x<board.length; x++){
-          if(board[y][x]!=null && e.x>board[y][x].xPos-40 && e.x<board[y][x].xPos+40 && e.y>board[y][x].yPos-40 && e.y<board[y][x].yPos+40) {
+          if(board[y][x]!=null && board[y][x].color == turn && e.x>board[y][x].xPos-40 && e.x<board[y][x].xPos+40 && e.y>board[y][x].yPos-40 && e.y<board[y][x].yPos+40) {
             heldPiece = board[y][x]
+            heldY=y
+            heldX=x
           }
         }
       }
@@ -77,15 +80,32 @@ function grabPiece(e) {
     }
   }
   else if(!mouseDown) {
-    if (!isValidMove()){
+    var dropX = Math.floor(e.x/100)
+    var dropY = Math.floor(e.y/100)
+    if (heldPiece!=null && isValidMove(heldPiece,heldX,heldY,dropX,dropY)){
+      board[dropY][dropX] = board[heldY][heldX]
+      board[heldY][heldX] = null
+      initializePieces()
+      turn = turn == "red" ? "blue" : "red"
+    } else if(heldPiece!= null && !isValidMove(heldPiece,heldX,heldY,dropX,dropY)) {
       initializePieces()
     }
     heldPiece=null
+    heldX = -1
+    heldY = -1
   }
 }
 
-function isValidMove() {
-  return false;
+function isValidMove(piece,srcX,srcY,newX,newY) {
+  if(board[newY][newX] != null){
+    return false
+  }
+  else if((board[srcY][srcX].color=="red" && board[srcY][srcX].king == false) && (newY == srcY-1 && (newX==srcX-1 || newX==srcX+1)) ) {
+    return true
+  }
+  else if((board[srcY][srcX].color=="blue" && board[srcY][srcX].king == false) && (newY == srcY+1 && (newX==srcX-1 || newX==srcX+1)) ) {
+    return true
+  }
 }
 
 function mainLoop() {
@@ -97,8 +117,10 @@ function mainLoop() {
 var c=document.getElementById("myCanvas");
 c.addEventListener('mousemove', grabPiece)
 var mouseDown = 0;
-//var turn=1;
+var turn="red"
 var heldPiece=null
+heldX = -1
+heldY = -1
 document.body.onmousedown = function() {
   ++mouseDown;
 }

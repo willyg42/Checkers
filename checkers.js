@@ -100,11 +100,33 @@ function isValidMove(piece,srcX,srcY,newX,newY) {
   if(board[newY][newX] != null){
     return false
   }
+  //normal non-king piece movement
   else if((board[srcY][srcX].color=="red" && board[srcY][srcX].king == false) && (newY == srcY-1 && (newX==srcX-1 || newX==srcX+1)) ) {
     return true
   }
   else if((board[srcY][srcX].color=="blue" && board[srcY][srcX].king == false) && (newY == srcY+1 && (newX==srcX-1 || newX==srcX+1)) ) {
     return true
+  }
+  //non-king jump logic
+  else if((board[srcY][srcX].color=="red" && board[srcY][srcX].king == false) && (newY == srcY-2 && (newX==srcX-2 || newX==srcX+2))) {
+    if((newX==srcX+2) && board[srcY-1][srcX+1].color=="blue") {
+      board[srcY-1][srcX+1] = null
+      return true
+    }
+    else if((newX==srcX-2) && board[srcY-1][srcX-1].color=="blue"){
+      board[srcY-1][srcX-1] = null
+      return true
+    }
+  }
+  else if((board[srcY][srcX].color=="blue" && board[srcY][srcX].king == false) && (newY == srcY+2 && (newX==srcX-2 || newX==srcX+2))) {
+    if((newX==srcX+2) && board[srcY+1][srcX+1].color=="red") {
+      board[srcY+1][srcX+1] = null
+      return true
+    }
+    else if((newX==srcX-2) && board[srcY+1][srcX-1].color=="red"){
+      board[srcY+1][srcX-1] = null
+      return true
+    }
   }
 }
 

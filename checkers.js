@@ -59,6 +59,11 @@ function drawPiece(context, newPiece) {
   context.arc(newPiece.xPos,newPiece.yPos,40,0,2*Math.PI);
   context.stroke();
   context.fill();
+  if(newPiece.king){
+    context.fillStyle = "white"
+    context.font="40px Impact";
+    context.fillText("K",newPiece.xPos-10,newPiece.yPos+15)
+  }
 }
 
 function grabPiece(e) {
@@ -74,7 +79,7 @@ function grabPiece(e) {
         }
       }
     }
-    else if(heldPiece!=null) {
+    else if(heldPiece!=null && e.y<800) {
       heldPiece.xPos = e.x
       heldPiece.yPos = e.y
     }
@@ -82,17 +87,20 @@ function grabPiece(e) {
   else if(!mouseDown) {
     var dropX = Math.floor(e.x/100)
     var dropY = Math.floor(e.y/100)
-    if (heldPiece!=null && isValidMove(heldPiece,heldX,heldY,dropX,dropY)){
+    if (heldPiece!=null && dropY<8 && dropY >= 0 && dropX>=0 && dropX < 8 && isValidMove(heldPiece,heldX,heldY,dropX,dropY)){
       board[dropY][dropX] = board[heldY][heldX]
       board[heldY][heldX] = null
-      initializePieces()
+      if(heldPiece.color=="red" && dropY==0){
+        heldPiece.king=true
+      } else if(heldPiece.color=="blue" && dropY==board.length-1){
+        heldPiece.king=true
+      }
       turn = turn == "red" ? "blue" : "red"
-    } else if(heldPiece!= null && !isValidMove(heldPiece,heldX,heldY,dropX,dropY)) {
-      initializePieces()
     }
     heldPiece=null
     heldX = -1
     heldY = -1
+    initializePieces()
   }
 }
 
@@ -144,9 +152,12 @@ var heldPiece=null
 heldX = -1
 heldY = -1
 document.body.onmousedown = function() {
-  ++mouseDown;
+  mouseDown=1
 }
 document.body.onmouseup = function() {
-  --mouseDown;
+  mouseDown=0
 }
+c.addEventListener("mouseout", function(){
+  mouseDown=0
+}, false)
 requestAnimationFrame(mainLoop)

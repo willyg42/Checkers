@@ -1,38 +1,32 @@
 function Piece(color,xPos,yPos) {
-  this.color = color;
-  this.xPos = xPos;
-  this.yPos = yPos;
+  this.color = color
+  this.xPos = xPos
+  this.yPos = yPos
 }
 
 var board = [
-  [0,1,0,1,0,1,0,1],
-  [1,0,1,0,1,0,1,0],
-  [0,1,0,1,0,1,0,1],
-  [0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0],
-  [2,0,2,0,2,0,2,0],
-  [0,2,0,2,0,2,0,2],
-  [2,0,2,0,2,0,2,0]
+  [null,new Piece("blue",150,50),null,new Piece("blue",350,50),null,new Piece("blue",550,50),null,new Piece("blue",750,50)],
+  [new Piece("blue",50,150),null,new Piece("blue",250,150),null,new Piece("blue",450,150),null,new Piece("blue",650,150),null],
+  [null,new Piece("blue",150,250),null,new Piece("blue",350,250),null,new Piece("blue",550,250),null,new Piece("blue",750,250)],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  [new Piece("red",50,550),null,new Piece("red",250,550),null,new Piece("red",450,550),null,new Piece("red",650,550),null],
+  [null,new Piece("red",150,650),null,new Piece("red",350,650),null,new Piece("red",550,650),null,new Piece("red",750,650)],
+  [new Piece("red",50,750),null,new Piece("red",250,750),null,new Piece("red",450,750),null,new Piece("red",650,750),null]
 ]
-var pieces = []
 
 function initializePieces() {
-  for(y=0;y<board.length;y++){
-    for(x=0;x<board[0].length;x++){
-      if(board[y][x] == 1) {
-        var bluePiece = new Piece("blue", 50+(x*100),50+(y*100))
-        pieces.push(bluePiece)
-      }
-      else if(board[y][x] == 2) {
-        redPiece = new Piece("red", 50+(x*100),50+(y*100))
-        pieces.push(redPiece)
+  for(y = 0; y < board.length; y++) {
+    for(x = 0; x < board[0].length; x++) {
+      if(board[y][x] != null) {
+        board[y][x].xPos = 50+(x*100)
+        board[y][x].yPos = 50+(y*100)
       }
     }
   }
 }
 
 function drawBoard() {
-  var c=document.getElementById("myCanvas");
   var context=c.getContext("2d");
   for (y = 0; y < board.length; y++) {
     for(x = 0; x < board[0].length; x++) {
@@ -45,8 +39,16 @@ function drawBoard() {
       context.fillRect(x*100,y*100, 100,100);
     }
   }
-  for(i=0; i<pieces.length; i++) {
-    drawPiece(context,pieces[i])
+}
+
+function drawPieces(context) {
+  var context=c.getContext("2d")
+  for(y = 0; y < board.length; y++) {
+    for(x=0; x<board.length; x++){
+      if(board[y][x]!=null){
+        drawPiece(context, board[y][x])
+      }
+    }
   }
 }
 
@@ -59,27 +61,48 @@ function drawPiece(context, newPiece) {
 }
 
 function grabPiece(e) {
-  console.log(mouseDown);
   if(mouseDown) {
-    piece = pieces[0]
-    piece.xPos = e.x
-    piece.yPos = e.y
+    if(heldPiece == null) {
+      for(y=0; y<board.length; y++){
+        for(x=0; x<board.length; x++){
+          if(board[y][x]!=null && e.x>board[y][x].xPos-40 && e.x<board[y][x].xPos+40 && e.y>board[y][x].yPos-40 && e.y<board[y][x].yPos+40) {
+            heldPiece = board[y][x]
+          }
+        }
+      }
+    }
+    else if(heldPiece!=null) {
+      heldPiece.xPos = e.x
+      heldPiece.yPos = e.y
+    }
+  }
+  else if(!mouseDown) {
+    if (!isValidMove()){
+      initializePieces()
+    }
+    heldPiece=null
   }
 }
 
+function isValidMove() {
+  return false;
+}
+
 function mainLoop() {
-  drawBoard()  
+  drawBoard()
+  drawPieces()
   requestAnimationFrame(mainLoop)
 }
 
 var c=document.getElementById("myCanvas");
 c.addEventListener('mousemove', grabPiece)
 var mouseDown = 0;
-document.body.onmousedown = function() { 
+//var turn=1;
+var heldPiece=null
+document.body.onmousedown = function() {
   ++mouseDown;
 }
 document.body.onmouseup = function() {
   --mouseDown;
 }
-initializePieces()
 requestAnimationFrame(mainLoop)

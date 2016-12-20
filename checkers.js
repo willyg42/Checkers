@@ -1,10 +1,11 @@
-var board = newBoard();
+var board = newBoard()
 var c=document.getElementById("myCanvas");
-//var justJumped=null
+var lastMove=null
 var turn="red"
 var heldPiece=null
 var heldX = -1
 var heldY = -1
+var gameOver = ""
 initializePieces()
 c.addEventListener('mousemove', holdingPiece)
 c.addEventListener('mousedown', grabPiece)
@@ -25,6 +26,15 @@ function drawBoard() {
       context.fillRect(x*100,y*100, 100,100);
     }
   }
+}
+
+function drawGameOver() {
+  var context = c.getContext("2d")
+  context.fillStyle= "#000000"
+  context.fillRect(50,250,700,300)
+  context.fillStyle = "#ffffff"
+  context.font="60px Impact";
+  context.fillText(gameOver,120,415)
 }
 
 function drawPieces(context) {
@@ -64,7 +74,7 @@ function grabPiece(e) {
       for(x=0; x<board.length; x++){
         if(board[y][x]!=null && board[y][x].color == turn && e.x>board[y][x].xPos-40 && e.x<board[y][x].xPos+40 && e.y>board[y][x].yPos-40 && e.y<board[y][x].yPos+40) {
           heldPiece = board[y][x]
-          heldX = x 
+          heldX = x
           heldY = y
         }
       }
@@ -82,14 +92,20 @@ function leaveBoard(e) {
 function mainLoop() {
   drawBoard()
   drawPieces()
+  if(gameOver != "")
+    drawGameOver()
   requestAnimationFrame(mainLoop)
 }
 
 function placePiece(e) {
   if (heldPiece != null) {
+    var kinged = false
     var dropX = Math.floor(e.x/100)
     var dropY = Math.floor(e.y/100)
-    var validMoves = getValidMoves(turn, board)
+    var validMoves = getValidMoves(turn, board, lastMove)
+    if(validMoves.length == 0) {
+      gameOver = "Game Over: " + turn + " player can't move."
+    }
     var move = null
     for(x = 0; x < validMoves.length; x++) {
       if(heldPiece == validMoves[x].piece && dropX == validMoves[x].newX && dropY == validMoves[x].newY) {
@@ -101,20 +117,45 @@ function placePiece(e) {
       board[heldY][heldX] = null
       if(move.jumpX != -1) {
         board[move.jumpY][move.jumpX] = null
+        checkWin()
       }
       if(!heldPiece.king && heldPiece.color=="red" && dropY==0){
         heldPiece.king=true
-       // turn = turn == "red" ? "blue" : "red"
-      } 
+        kinged = true
+      }
       else if(!heldPiece.king && heldPiece.color=="blue" && dropY==board.length-1){
         heldPiece.king=true
-        //turn = turn == "red" ? "blue" : "red"
+        kinged = true
       }
-      turn = turn == "red" ? "blue" : "red"
+      if(kinged || move.jumpX == -1) {
+        turn = turn == "red" ? "blue" : "red"
+      }
+      else if(!(move.jumpX != -1 && getJumps(board[dropY][dropX],dropX,dropY,board).length > 0)) {
+        turn = turn == "red" ? "blue" : "red"
+      }
+      lastMove = move
     }
     heldPiece=null
     heldX = -1
     heldY = -1
     initializePieces()
+  }
+}
+
+function checkWin() {
+  redExists = false
+  blueExists = false
+  for(y = 0; y < board.length && (!redExists || !blueExists); y++) {
+    for(x = 0; x < board.length && (!redExists || !blueExists); x++) {
+      if(board[y][x] != null && board[y][x].color == "red")
+        redExists = true
+      else if(board[y][x] != null && board[y][x].color == "blue")
+        blueExists = true
+    }
+  }
+  if(!redExists)
+    gameOver = "Game Over: Blue Wins"
+  else if(!blueExists) {
+    gameOver = "Game Over: Red Wins"
   }
 }

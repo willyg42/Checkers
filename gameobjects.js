@@ -27,8 +27,8 @@ function initializePieces() {
   for(y = 0; y < board.length; y++) {
     for(x = 0; x < board[0].length; x++) {
       if(board[y][x] != null) {
-        board[y][x].xPos = 50+(x*100)
-        board[y][x].yPos = 50+(y*100)
+        board[y][x].xPos = (tileSize/2)+(x*tileSize)
+        board[y][x].yPos = (tileSize/2)+(y*tileSize)
       }
     }
   }

@@ -1,3 +1,4 @@
-#myCanvas {
-  /*border:2px solid #000000;*/
+html,body, div, canvas {
+  margin: 0;
+  padding: 0;
 }

@@ -1,11 +1,12 @@
-var board = newBoard()
 var c=document.getElementById("myCanvas");
+var tileSize = c.height/8
+var board = newBoard()
 var lastMove=null
 var turn="red"
 var heldPiece=null
 var heldX = -1
 var heldY = -1
-var gameOver = ""
+var gameOver =  ""
 initializePieces()
 c.addEventListener('mousemove', holdingPiece)
 c.addEventListener('mousedown', grabPiece)
@@ -23,7 +24,7 @@ function drawBoard() {
       else {
         context.fillStyle="#000000";
       }
-      context.fillRect(x*100,y*100, 100,100);
+      context.fillRect(x*tileSize,y*tileSize, tileSize, tileSize);
     }
   }
 }
@@ -31,10 +32,11 @@ function drawBoard() {
 function drawGameOver() {
   var context = c.getContext("2d")
   context.fillStyle= "#000000"
-  context.fillRect(50,250,700,300)
+  context.fillRect(tileSize/2,(tileSize/2)*5,(tileSize/2)*14,(tileSize/2)*6)
   context.fillStyle = "#ffffff"
-  context.font="60px Impact";
-  context.fillText(gameOver,120,415)
+  var fontSize=tileSize
+  context.font=fontSize +"px Impact";
+  context.fillText(gameOver,(tileSize/2)*4,(tileSize/2)*8.5)
 }
 
 function drawPieces(context) {
@@ -51,13 +53,14 @@ function drawPieces(context) {
 function drawPiece(context, newPiece) {
   context.fillStyle = newPiece.color;
   context.beginPath();
-  context.arc(newPiece.xPos,newPiece.yPos,40,0,2*Math.PI);
+  context.arc(newPiece.xPos,newPiece.yPos,(tileSize-10)/2,0,2*Math.PI);
   context.stroke();
   context.fill();
   if(newPiece.king){
     context.fillStyle = "white"
-    context.font="40px Impact";
-    context.fillText("K",newPiece.xPos-10,newPiece.yPos+15)
+    fontSize = tileSize/2
+    context.font=fontSize+"px Impact";
+    context.fillText("K",newPiece.xPos-(tileSize/9),newPiece.yPos+(tileSize/5))
   }
 }
 
@@ -100,11 +103,11 @@ function mainLoop() {
 function placePiece(e) {
   if (heldPiece != null) {
     var kinged = false
-    var dropX = Math.floor(e.x/100)
-    var dropY = Math.floor(e.y/100)
+    var dropX = Math.floor(e.x/tileSize)
+    var dropY = Math.floor(e.y/tileSize)
     var validMoves = getValidMoves(turn, board, lastMove)
     if(validMoves.length == 0) {
-      gameOver = "Game Over: " + turn + " player can't move."
+      gameOver = turn + " can't move."
     }
     var move = null
     for(x = 0; x < validMoves.length; x++) {
@@ -154,8 +157,8 @@ function checkWin() {
     }
   }
   if(!redExists)
-    gameOver = "Game Over: Blue Wins"
+    gameOver = "Blue Wins"
   else if(!blueExists) {
-    gameOver = "Game Over: Red Wins"
+    gameOver = "Red Wins"
   }
 }

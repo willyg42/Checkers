@@ -9,9 +9,12 @@ var heldY = -1
 var gameOver =  ""
 initializePieces()
 c.addEventListener('mousemove', holdingPiece)
+c.addEventListener('touchmove',holdingPiece)
 c.addEventListener('mousedown', grabPiece)
+c.addEventListener('touchstart',grabPiece)
 c.addEventListener('mouseout', leaveBoard)
 c.addEventListener('mouseup', placePiece)
+c.addEventListener('touchend',placePiece)
 requestAnimationFrame(mainLoop)
 
 function drawBoard() {
